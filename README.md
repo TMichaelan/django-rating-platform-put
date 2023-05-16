@@ -1,0 +1,1 @@
+# django-rating-platform-put
