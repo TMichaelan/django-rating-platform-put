@@ -1,0 +1,34 @@
+{% extends "header.html" %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="p-4">
+  <h1>Movies List:</h1>
+    {% if page_obj %} 
+    {% for movie in page_obj %}
+      <h4>
+        <a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a>
+      </h4>
+    {% endfor %} 
+    {% endif %} 
+  <div>
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+  </div>
+</div>
+<a name="" id="" class="btn btn-warning" href="/logout" role="button">Log out</a>
+<a name="" id="" class="btn btn-primary" href="/rated_movies" role="button">Ratings</a>
+{% endif %}
+{% if not user.is_authenticated %}
+<h1>Error : Login Required</h1>
+{% endif %}
+{% endblock %}
+
+

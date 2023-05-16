@@ -1,0 +1,30 @@
+{% comment %} {% extends "base.html" %} {% endcomment %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+
+
+
+<h1>{{ movie.title }}</h1>
+<h4>Movie id: {{ movie.id }}</h4>
+
+<ul>
+   <p> Genres: {% for genre in movie.genres.all %} </p>
+   <li><a
+          class="list-group-item list-group-item-action"
+          href="/genre/{{genre.id}}"
+          >{{ genre.name }}</a></li>
+    {% endfor %}
+</ul>
+
+
+
+
+{% if page_obj %}
+
+{% for movie in page_obj %}
+<h4>
+    <a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a>
+</h4>
+{% endfor %} 
+{% endif %} 
