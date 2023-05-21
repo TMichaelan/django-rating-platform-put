@@ -1,3 +1,8 @@
+{% extends "header.html" %}
+{% load userview_extras %}
+{% load crispy_forms_tags %}
+{% block content %}
+
 {% comment %} {% extends "base.html" %} {% endcomment %}
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -6,7 +11,25 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 
 <h1>{{ movie.title }}</h1>
+
 <h4>Movie id: {{ movie.id }}</h4>
+
+<h4>Movie IMDB audience_rating: {{ movie.imdbrating.audience_rating }}</h4>
+<h4>Movie IMDB critic_rating: {{ movie.imdbrating.critic_rating }}</h4>
+<h4>Movie Platform user average rating: {{ average_rating }}</h4>
+<h4>Movie IMDB link: <a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></h4>
+<h4>Movie year: {{ movie.year }}</h4>
+<img src="{{ movie.img_url }}">
+
+<ul>
+    <p> Comments: {% for genre in movie.genres.all %} </p>
+    <li><a
+           class="list-group-item list-group-item-action"
+           href="/genre/{{genre.id}}"
+           >{{ genre.name }}</a></li>
+     {% endfor %}
+ </ul>
+
 
 <ul>
    <p> Genres: {% for genre in movie.genres.all %} </p>
@@ -18,8 +41,6 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 </ul>
 
 
-
-
 {% if page_obj %}
 
 {% for movie in page_obj %}
@@ -28,3 +49,31 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 </h4>
 {% endfor %} 
 {% endif %} 
+
+{% if user.is_authenticated %}
+
+<h3>Rate this movie</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-success" type="submit">Add Rating</button>
+    </form>
+
+<h3>Add a comment</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ comment_form|crispy }}
+    <button class="btn btn-success" type="submit">Post Comment</button>
+</form>
+
+{% endif %} 
+
+<h3>Comments</h3>
+{% for comment in movie.comment_set.all %}
+    <p>
+        <strong>{{ comment.user.username }}</strong>
+        {{ comment.user_review }}
+    </p>
+{% endfor %}
+
+{% endblock %}

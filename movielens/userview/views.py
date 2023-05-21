@@ -4,13 +4,16 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
 from django.contrib import messages
-from userview.forms import UserForm, RatingForm
+from userview.forms import UserForm, RatingForm, UserRatingForm, CommentForm
 from django.contrib.auth.decorators import login_required
-
+from django.db.models import Avg
 from userview.forms import NewUserForm
 from .models import Movie,Genre,Rating
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.db import IntegrityError
 # Create your views here.
 
 from django.http import HttpRequest, HttpResponse
@@ -44,8 +47,9 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Movie.objects.order_by('-title')
     
-class MovieView(LoginRequiredMixin, generic.DetailView):
-    login_url = '/login'
+# class MovieView(LoginRequiredMixin, generic.DetailView):
+class MovieView(generic.DetailView):
+    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
 
@@ -79,11 +83,52 @@ class MovieView(LoginRequiredMixin, generic.DetailView):
 
         context['page_obj'] = page_obj
         return context
+    
 
-class MovieView(LoginRequiredMixin, generic.DetailView):
-    login_url = '/login'
+
+
+# class MovieView(LoginRequiredMixin, generic.DetailView):
+class MovieView(generic.DetailView):
+    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        movie = self.get_object()
+        average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
+        context['average_rating'] = average_rating
+        context['form'] = UserRatingForm()
+        context['comment_form'] = CommentForm()  
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        form = UserRatingForm(request.POST)
+        comment_form = CommentForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.user = request.user
+            rating.movie = get_object_or_404(Movie, pk=kwargs['pk'])
+            try:
+                rating.save()
+                messages.success(request, "Your rating has been saved.")
+            except IntegrityError:
+                messages.error(request, "You've already rated this movie.")
+            return HttpResponseRedirect(self.request.path_info)
+        
+        elif comment_form.is_valid(): 
+            comment = comment_form.save(commit=False)
+            comment.user = request.user
+            comment.movie = self.get_object()
+            comment.save()
+            messages.success(request, "Your comment has been posted.")
+            return HttpResponseRedirect(self.request.path_info)
+
+        else:
+            return self.get(request, *args, **kwargs)
+
+        
+
 
 class GenreView(LoginRequiredMixin, generic.DetailView):
     login_url = '/login'
@@ -143,39 +188,49 @@ def rated_movies(request):
     
     return render(request, 'rated_movies.html', context)
 
-@login_required(login_url="/login")
-def search_results(request):
 
+# TODO Validation
+def search_results(request):
     data = request.GET.get('data')
     option = request.GET.get('option')
     movies = Movie.objects.all()
-    genres = Genre.objects.all()
-    print(movies)
+
     if option == "title":
-        movie = movies.filter(title__icontains=data)
+        movies = movies.filter(title__icontains=data)
 
     elif option == "genre":
-        movies = genres.filter(name=data)
+        movies = movies.filter(genres__name__icontains=data)
         print(movies)
+       
     elif option == "rating":
-        pass
+        data = float(data)
+        movies = movies.annotate(avg_rating=Avg('rating__value'))
+        movies = movies.filter(avg_rating__gte=data)
 
-    # # Filter the movies based on the provided filters
-    # 
-    # if title:
-    #     movies = movies.filter(title__icontains=title)
-    # if genre:
-    #     movies = movies.filter(genre=genre)
-    # if min_rating:
-    #     movies = movies.filter(rating__gte=min_rating)
+    print(movies)
 
-    # # Pass the filtered movies to the template
-    # context = {
-    #     'movies': movies,
-    #     'title': title,
-    #     'genre': genre,
-    #     'min_rating': min_rating,
-    # }
-    # return render(request, 'search_results.html', context)
-    print("OK")
-    return redirect("/")
+    return render(request, 'search_results.html', {'movies': movies})
+
+
+class RatedMoviesView(LoginRequiredMixin, generic.ListView):
+    login_url = '/login'
+    model = Movie
+    template_name = 'user_rated_movies.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Movie.objects.filter(rating__user=user).distinct()
+
+
+@login_required
+def rate_movie(request):
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.user = request.user
+            rating.save()
+            return redirect('movie_detail', pk=rating.movie.id)
+    else:
+        form = RatingForm()
+    return render(request, 'userview/rate_movie.html', {'form': form})
