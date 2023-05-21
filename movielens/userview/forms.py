@@ -28,3 +28,10 @@ class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
         fields = ['movie', 'value']
+
+class UserRatingForm(forms.ModelForm):
+    value = forms.IntegerField(min_value=1, max_value=10)
+
+    class Meta:
+        model = Rating
+        fields = ['value']

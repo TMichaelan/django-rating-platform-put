@@ -4,13 +4,16 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
 from django.contrib import messages
-from userview.forms import UserForm, RatingForm
+from userview.forms import UserForm, RatingForm, UserRatingForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from userview.forms import NewUserForm
 from .models import Movie,Genre,Rating
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.db import IntegrityError
 # Create your views here.
 
 from django.http import HttpRequest, HttpResponse
@@ -80,6 +83,9 @@ class MovieView(generic.DetailView):
 
         context['page_obj'] = page_obj
         return context
+    
+
+
 
 # class MovieView(LoginRequiredMixin, generic.DetailView):
 class MovieView(generic.DetailView):
@@ -92,7 +98,23 @@ class MovieView(generic.DetailView):
         movie = self.get_object()
         average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
         context['average_rating'] = average_rating
+        context['form'] = UserRatingForm()
         return context
+    
+    def post(self, request, *args, **kwargs):
+        form = UserRatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.user = request.user
+            rating.movie = get_object_or_404(Movie, pk=kwargs['pk'])
+            try:
+                rating.save()
+                messages.success(request, "Your rating has been saved.")
+            except IntegrityError:
+                messages.error(request, "You've already rated this movie.")
+            return HttpResponseRedirect(self.request.path_info)
+        else:
+            return self.get(request, *args, **kwargs)
 
 
 class GenreView(LoginRequiredMixin, generic.DetailView):
@@ -187,26 +209,15 @@ class RatedMoviesView(LoginRequiredMixin, generic.ListView):
         return Movie.objects.filter(rating__user=user).distinct()
 
 
-
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     return Movie.objects.filter(rating__user=user).distinct()
-
-# @login_required(login_url="/login")
-# def user_rated_movies(request):
-#     # if request.method == 'POST':
-#     #     form = RatingForm(request.POST)
-#     #     if form.is_valid():
-#     #         rating = form.save(commit=False)
-#     #         rating.user = request.user
-#     #         rating.save()
-#     #         messages.success(request, 'Rating added successfully.')
-#     # else:
-#     #     form = RatingForm()
-
-#     # user_ratings = Rating.objects.filter(user=request.user)
-
-#     # context = {'user_ratings': user_ratings, 'form': form}
-    
-#     # return render(request, 'user_rated_movies.html', context)
-#     return render(request, 'user_rated_movies.html')
+@login_required
+def rate_movie(request):
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.user = request.user
+            rating.save()
+            return redirect('movie_detail', pk=rating.movie.id)
+    else:
+        form = RatingForm()
+    return render(request, 'userview/rate_movie.html', {'form': form})

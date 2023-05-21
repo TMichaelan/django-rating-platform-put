@@ -25,6 +25,9 @@ class Rating(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = (('user', 'movie'),)
+
 
 class Comment(models.Model):
     user_review = models.TextField()
