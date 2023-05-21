@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
 from django.contrib import messages
-from userview.forms import UserForm, RatingForm, UserRatingForm
+from userview.forms import UserForm, RatingForm, UserRatingForm, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from userview.forms import NewUserForm
@@ -99,10 +99,12 @@ class MovieView(generic.DetailView):
         average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
         context['average_rating'] = average_rating
         context['form'] = UserRatingForm()
+        context['comment_form'] = CommentForm()  
         return context
     
     def post(self, request, *args, **kwargs):
         form = UserRatingForm(request.POST)
+        comment_form = CommentForm(request.POST)
         if form.is_valid():
             rating = form.save(commit=False)
             rating.user = request.user
@@ -113,8 +115,19 @@ class MovieView(generic.DetailView):
             except IntegrityError:
                 messages.error(request, "You've already rated this movie.")
             return HttpResponseRedirect(self.request.path_info)
+        
+        elif comment_form.is_valid(): 
+            comment = comment_form.save(commit=False)
+            comment.user = request.user
+            comment.movie = self.get_object()
+            comment.save()
+            messages.success(request, "Your comment has been posted.")
+            return HttpResponseRedirect(self.request.path_info)
+
         else:
             return self.get(request, *args, **kwargs)
+
+        
 
 
 class GenreView(LoginRequiredMixin, generic.DetailView):

@@ -51,8 +51,8 @@ def load_data_from_csv():
             # Insert comment
             # Here we assume that there is a user with id 1 who made the comments
             comment_insert_query = (
-                "INSERT INTO userview_comment (user_review, user_id, movie_id)"
-                "VALUES (%s, %s, %s)"
+                "INSERT INTO userview_comment (user_review, user_id, movie_id, timestamp)"
+                "VALUES (%s, %s, %s, NOW())"
             )
             comment_data = (row['User_Review'], 1, movie_id)
             cursor.execute(comment_insert_query, comment_data)

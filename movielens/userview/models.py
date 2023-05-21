@@ -25,14 +25,11 @@ class Rating(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = (('user', 'movie'),)
-
-
 class Comment(models.Model):
-    user_review = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    user_review = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class ImdbRating(models.Model):
     audience_rating = models.FloatField()

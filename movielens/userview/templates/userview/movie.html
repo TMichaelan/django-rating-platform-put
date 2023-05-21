@@ -59,35 +59,21 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
         <button class="btn btn-success" type="submit">Add Rating</button>
     </form>
 
-{% comment %} <div class="container py-5">
-    <h3>Add a Rating</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button class="btn btn-success" type="submit">Add Rating</button>
-        <a name="" id="" class="btn btn-primary" href="/" role="button">Home</a>
-    </form>
-</div> {% endcomment %}
-
-{% comment %} 
-<form method="POST" action="/comment/{{ movie.id }}/rate">
+<h3>Add a comment</h3>
+<form method="post">
     {% csrf_token %}
-    {{ form|crispy }}
-    Rate movie {{ movie.title }}:
-    <div class="input-group">
-        <textarea class="form-control" aria-label="With textarea"></textarea>
-      </div>
-    <button type="submit" class="btn btn-primary">Rate</button>
-</form> {% endcomment %}
+    {{ comment_form|crispy }}
+    <button class="btn btn-success" type="submit">Post Comment</button>
+</form>
 
-
-{% comment %} <form method="POST" action="/comment/{{ movie.id }}/rate">
-    {% csrf_token %}
-    {{ form|crispy }}
-    Leave comment:
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-    <button type="submit" class="btn btn-primary">Comment</button>
-</form> {% endcomment %}
 {% endif %} 
+
+<h3>Comments</h3>
+{% for comment in movie.comment_set.all %}
+    <p>
+        <strong>{{ comment.user.username }}</strong>
+        {{ comment.user_review }}
+    </p>
+{% endfor %}
 
 {% endblock %}
