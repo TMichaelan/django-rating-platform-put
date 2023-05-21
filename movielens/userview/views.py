@@ -142,3 +142,40 @@ def rated_movies(request):
     context = {'user_ratings': user_ratings, 'form': form}
     
     return render(request, 'rated_movies.html', context)
+
+@login_required(login_url="/login")
+def search_results(request):
+
+    data = request.GET.get('data')
+    option = request.GET.get('option')
+    movies = Movie.objects.all()
+    genres = Genre.objects.all()
+    print(movies)
+    if option == "title":
+        movie = movies.filter(title__icontains=data)
+
+    elif option == "genre":
+        movies = genres.filter(name=data)
+        print(movies)
+    elif option == "rating":
+        pass
+
+    # # Filter the movies based on the provided filters
+    # 
+    # if title:
+    #     movies = movies.filter(title__icontains=title)
+    # if genre:
+    #     movies = movies.filter(genre=genre)
+    # if min_rating:
+    #     movies = movies.filter(rating__gte=min_rating)
+
+    # # Pass the filtered movies to the template
+    # context = {
+    #     'movies': movies,
+    #     'title': title,
+    #     'genre': genre,
+    #     'min_rating': min_rating,
+    # }
+    # return render(request, 'search_results.html', context)
+    print("OK")
+    return redirect("/")

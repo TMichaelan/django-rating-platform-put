@@ -45,12 +45,25 @@
               <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
             </li>
           </ul> {% endcomment %}
+         
+        
+          {% if user.is_authenticated %}
+
           {% comment %} <form class="d-flex">
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            
-
+            <button class="btn btn-outline-success" type="submit" style="margin-right: 5px;">Search</button>
           </form> {% endcomment %}
-          {% if user.is_authenticated %}
+
+          <form class="d-flex" method="GET" action="{% url 'search_results' %}">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="data">
+            <select class="form-select" name="option">
+              <option value="title">Search by movie title</option>
+              <option value="genre">Search by genre</option>
+              <option value="rating">Search by minimum rating</option>
+            </select>
+            <button class="btn btn-outline-success" type="submit" style="margin-right: 5px;">Search</button>
+          </form>
+
             <a name="" id="" class="btn btn-primary" href="/logout" role="button">LogOut</a>
             {% endif %}
             {% if not user.is_authenticated %}
