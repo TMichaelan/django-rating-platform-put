@@ -9,5 +9,6 @@ urlpatterns = [
     path("login", views.login_request, name="login"),
     path("logout", views.logout_request, name="logout"),
     path('rated_movies/', views.rated_movies, name='rated_movies'),
+    path('user_rated_movies/', views.RatedMoviesView.as_view(), name='user_rated_movies'),
     path('search/', views.search_results, name='search_results'),
 ]

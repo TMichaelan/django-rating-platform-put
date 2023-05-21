@@ -6,7 +6,7 @@ from django.template import loader
 from django.contrib import messages
 from userview.forms import UserForm, RatingForm
 from django.contrib.auth.decorators import login_required
-
+from django.db.models import Avg
 from userview.forms import NewUserForm
 from .models import Movie,Genre,Rating
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -44,8 +44,9 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Movie.objects.order_by('-title')
     
-class MovieView(LoginRequiredMixin, generic.DetailView):
-    login_url = '/login'
+# class MovieView(LoginRequiredMixin, generic.DetailView):
+class MovieView(generic.DetailView):
+    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
 
@@ -80,10 +81,19 @@ class MovieView(LoginRequiredMixin, generic.DetailView):
         context['page_obj'] = page_obj
         return context
 
-class MovieView(LoginRequiredMixin, generic.DetailView):
-    login_url = '/login'
+# class MovieView(LoginRequiredMixin, generic.DetailView):
+class MovieView(generic.DetailView):
+    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        movie = self.get_object()
+        average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
+        context['average_rating'] = average_rating
+        return context
+
 
 class GenreView(LoginRequiredMixin, generic.DetailView):
     login_url = '/login'
@@ -143,39 +153,60 @@ def rated_movies(request):
     
     return render(request, 'rated_movies.html', context)
 
-@login_required(login_url="/login")
-def search_results(request):
 
+# TODO Validation
+def search_results(request):
     data = request.GET.get('data')
     option = request.GET.get('option')
     movies = Movie.objects.all()
-    genres = Genre.objects.all()
-    print(movies)
+
     if option == "title":
-        movie = movies.filter(title__icontains=data)
+        movies = movies.filter(title__icontains=data)
 
     elif option == "genre":
-        movies = genres.filter(name=data)
+        movies = movies.filter(genres__name__icontains=data)
         print(movies)
+       
     elif option == "rating":
-        pass
+        data = float(data)
+        movies = movies.annotate(avg_rating=Avg('rating__value'))
+        movies = movies.filter(avg_rating__gte=data)
 
-    # # Filter the movies based on the provided filters
-    # 
-    # if title:
-    #     movies = movies.filter(title__icontains=title)
-    # if genre:
-    #     movies = movies.filter(genre=genre)
-    # if min_rating:
-    #     movies = movies.filter(rating__gte=min_rating)
+    print(movies)
 
-    # # Pass the filtered movies to the template
-    # context = {
-    #     'movies': movies,
-    #     'title': title,
-    #     'genre': genre,
-    #     'min_rating': min_rating,
-    # }
-    # return render(request, 'search_results.html', context)
-    print("OK")
-    return redirect("/")
+    return render(request, 'search_results.html', {'movies': movies})
+
+
+class RatedMoviesView(LoginRequiredMixin, generic.ListView):
+    login_url = '/login'
+    model = Movie
+    template_name = 'user_rated_movies.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Movie.objects.filter(rating__user=user).distinct()
+
+
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return Movie.objects.filter(rating__user=user).distinct()
+
+# @login_required(login_url="/login")
+# def user_rated_movies(request):
+#     # if request.method == 'POST':
+#     #     form = RatingForm(request.POST)
+#     #     if form.is_valid():
+#     #         rating = form.save(commit=False)
+#     #         rating.user = request.user
+#     #         rating.save()
+#     #         messages.success(request, 'Rating added successfully.')
+#     # else:
+#     #     form = RatingForm()
+
+#     # user_ratings = Rating.objects.filter(user=request.user)
+
+#     # context = {'user_ratings': user_ratings, 'form': form}
+    
+#     # return render(request, 'user_rated_movies.html', context)
+#     return render(request, 'user_rated_movies.html')

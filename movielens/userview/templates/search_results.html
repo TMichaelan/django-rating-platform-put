@@ -1,0 +1,15 @@
+{% extends "header.html" %}
+{% load userview_extras %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<ul>
+    {% for movie in movies %}    
+        <li><a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a></li>
+
+    {% empty %}
+        <h1>There are no movies that meet your request.</h1>
+    {% endfor %}
+</ul>
+
+{% endblock %}
