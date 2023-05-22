@@ -1,6 +1,5 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login,authenticate,logout
-from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
 from django.contrib import messages
@@ -11,13 +10,10 @@ from userview.forms import NewUserForm
 from .models import Movie,Genre,Rating,Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.db import IntegrityError
-from django.views import View
+from django.views import View,generic
 
-from django.http import HttpRequest, HttpResponse
-from django.views import generic
 
 from bs4 import BeautifulSoup
 import requests
