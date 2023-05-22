@@ -7,7 +7,7 @@
 <div class="container py-5">
 
 <h1>About</h1>
-<p>{% lorem 5 %}</p>
+<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel sequi necessitatibus quaerat, nesciunt fugiat assumenda perferendis architecto blanditiis nihil. Asperiores ut incidunt molestias repellendus cum mollitia, nemo architecto cupiditate dolore explicabo saepe culpa quos quaerat dicta dolores esse laudantium, iusto, quibusdam error officia? Adipisci repellat tempore nesciunt at suscipit aperiam dolorum, eum impedit mollitia aut, nobis autem aliquam ad illum unde officia molestiae odit nihil! Quos nulla reiciendis cum error maxime nam repellendus in mollitia totam voluptatem, porro illum magnam vero minus numquam. Amet incidunt voluptatem quisquam fugiat mollitia ex nihil tempore ipsum laudantium natus placeat, quas facere consequatur eos voluptatum assumenda, quaerat nulla? Fuga aspernatur facilis, quaerat laborum qui voluptatibus nam unde nobis deleniti cupiditate velit voluptates cum. Odit, dicta sit totam architecto repudiandae quae maxime dignissimos! Odio voluptate molestias expedita repellat nisi, alias, nemo odit voluptas laudantium accusantium obcaecati. Excepturi consequatur reprehenderit impedit mollitia quisquam deleniti, repellendus placeat illo eos aperiam tenetur autem, quasi dignissimos similique! Ipsa inventore magni accusamus accusantium in non illum sed impedit odio quas numquam distinctio, recusandae cum repellendus sint obcaecati vel sit exercitationem voluptates consequatur corrupti atque itaque dicta possimus! Consectetur perferendis corrupti iusto quibusdam eum. Accusamus ipsa sapiente temporibus non voluptate maxime?</p>
 
 
 <div class="container">
@@ -24,14 +24,14 @@
           <a href="/genre/{{genre.id}}" class="badge bg-primary text-decoration-none text-white me-2">{{ genre.name }}</a>
           {% endfor %}
           </p>
-        <a href="/movie/{{movie.id}}" class="btn btn-primary mt-auto">Follow</a>
+        <a href="/movie/{{movie.id}}" class="btn btn-primary mt-auto">See more</a>
       </div>
     </div>
   {% empty %}
     <h1>There are no movies that meet your request.</h1>
   {% endfor %}
   </div>
-  </div>
+
 
 {% if user.is_authenticated %}
 <h1>Recommendations</h1>
@@ -41,25 +41,26 @@
 
 {% endif %}
 
-{% if not user.is_authenticated %}
-<h1>Error : Login Required</h1>
-{% endif %}
 
-
-
-<div class="p-4">
-  <h1>Movies List:</h1>
+  <h1>All Movies:</h1>
   {% if page_obj %} 
-  <div class="row justify-content-center align-items-center">
+  <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top:20px">
     {% for movie in page_obj %}
-    <div class="col-4">
-      <div class="card">
-        <div class="card-body">
-          <h3 class="card-title"><a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a></h3>
-          <img src="{{ movie.img_url }}" class="card-img-top" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
-        </div>
+      <div class="card" style="width: 18rem; margin-right:10px">
+
+          <img src="{{ movie.img_url }}" class="card-img-top" alt="{{ movie.title }}" style="margin-top:10px"
+          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ movie.title }}</h5>
+            <p class="card-text">
+              {% for genre in movie.genres.all %}
+              <a href="/genre/{{genre.id}}" class="badge bg-primary text-decoration-none text-white me-2">{{ genre.name }}</a>
+              {% endfor %}
+              </p>
+            <a href="/movie/{{movie.id}}" class="btn btn-primary mt-auto">See more</a>
+          </div>
+        
       </div>
-    </div>
     {% endfor %} 
   </div>
   {% endif %} 
