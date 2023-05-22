@@ -3,13 +3,26 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<ul>
-    {% for movie in movies %}    
-        <li><a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a></li>
 
-    {% empty %}
-        <h1>There are no movies that meet your request.</h1>
-    {% endfor %}
-</ul>
-
+<div class="container">
+<div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top:20px">
+{% for movie in movies %}
+<div class="card" style="width: 18rem; margin-right:10px">
+    <img src="{{ movie.img_url }}" class="card-img-top" alt="{{ movie.title }}" style="margin-top:10px"
+    onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">{{ movie.title }}</h5>
+      <p class="card-text">
+        {% for genre in movie.genres.all %}
+        <a href="/genre/{{genre.id}}" class="badge bg-primary text-decoration-none text-white me-2">{{ genre.name }}</a>
+        {% endfor %}
+        </p>
+      <a href="/movie/{{movie.id}}" class="btn btn-primary mt-auto">Follow</a>
+    </div>
+  </div>
+{% empty %}
+  <h1>There are no movies that meet your request.</h1>
+{% endfor %}
+</div>
+</div>
 {% endblock %}

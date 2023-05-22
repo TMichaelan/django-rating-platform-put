@@ -241,6 +241,15 @@ class RatedMoviesView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         user = self.request.user
         return Movie.objects.filter(rating__user=user).distinct()
+    
+class CommentedMoviesView(LoginRequiredMixin, generic.ListView):
+    login_url = '/login'
+    model = Movie
+    template_name = 'user_commented_movies.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Movie.objects.filter(comment__user=user).distinct()
 
 
 @login_required
