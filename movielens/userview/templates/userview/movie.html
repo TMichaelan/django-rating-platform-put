@@ -66,7 +66,6 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 {% if user.is_authenticated %}
 
-
 {% if user_rating %}
 <h3>Your rating</h3>
     <p>{{ user_rating.value }}</p>
@@ -90,6 +89,11 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
     <button class="btn btn-success" type="submit">Post Comment</button>
 </form>
 
+{% endif %} 
+
+{% if not user.is_authenticated %}
+    <h5>Log in to rate and comment</h5>
+{% endif %} 
 
 <h3>Comments</h3>
 {% for comment in movie.comment_set.all %}
@@ -105,9 +109,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
     </p>
 {% endfor %}
 
-{% endif %} 
 </div>
-
 
 <!-- Add jQuery first (necessary for Slick) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
