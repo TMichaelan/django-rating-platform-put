@@ -3,8 +3,9 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+
 <div class="container">
-<h2>Movies rated by you:</h2>
+<h2>Movies commented by you:</h2>
 <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top:20px">
 {% for movie in object_list %}
 <div class="card" style="width: 18rem; margin-right:10px">
@@ -21,7 +22,7 @@
     </div>
   </div>
 {% empty %}
-<p>You haven't rated any movies yet.</p>
+    <p>You haven't commented any movies yet.</p>
 {% endfor %}
 </div>
 </div>

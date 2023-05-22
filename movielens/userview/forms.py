@@ -40,3 +40,8 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['user_review']
+
+class AddMovieForm(forms.ModelForm):
+    class Meta:
+        model = Movie
+        fields = ['title', 'imdb_url', 'year', 'img_url','genres']
