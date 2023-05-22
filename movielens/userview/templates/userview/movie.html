@@ -15,11 +15,6 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 {% comment %} <h4>Movie id: {{ movie.id }}</h4> {% endcomment %}
 
-<h4>Movie IMDB audience_rating: {{ movie.imdbrating.audience_rating }}</h4>
-<h4>Movie IMDB critic_rating: {{ movie.imdbrating.critic_rating }}</h4>
-<h4>Movie Platform user average rating: {{ average_rating }}</h4>
-<h4>Movie IMDB link: <a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></h4>
-
 <img src="{{ movie.img_url }}">
 
 {% comment %} <ul>
@@ -28,7 +23,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
     {% endfor %}
 </ul> {% endcomment %}
 
-<h4>Movie year: {{ movie.year }}</h4>
+<h4>Year: {{ movie.year }}</h4>
 
 <div class="slick-carousel">
     {% for image in gallery_images %}
@@ -45,6 +40,19 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
         <a href="/genre/{{genre.id}}" class="badge bg-primary text-decoration-none text-white me-2">{{ genre.name }}</a>
     {% endfor %}
 </div>
+
+<div class="container">
+    <div class="row row-cols-2">
+      <div class="col">IMDB audience rating</div>
+      <div class="col">{{ movie.imdbrating.audience_rating }}</div>
+      <div class="col">IMDB critic rating</div>
+      <div class="col">{{ movie.imdbrating.critic_rating }}</div>
+      <div class="col">Platform user average rating</div>
+      <div class="col">{{ average_rating }}</div>
+      <div class="col"><a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></div>
+    </div>
+  </div>
+
 
 
 {% if page_obj %}
