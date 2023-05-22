@@ -14,6 +14,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
     {% if user.is_superuser %}
     <a name="" id="" class="btn btn-warning" href="{% url 'edit_movie_admin' movie.id %}" role="button" style="margin-right: 5px;">Edit</a>
+    <a name="" id="" class="btn btn-danger" href="{% url 'delete_movie_admin' movie.id %}" role="button" style="margin-right: 5px;" onclick="return confirm('Are you sure want to delete {{ movie.title }} movie?')">Delete</a>
     {% endif %}
 
 <h1>{{ movie.title }}</h1>
