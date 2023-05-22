@@ -8,16 +8,20 @@ from userview.forms import UserForm, RatingForm, UserRatingForm, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from userview.forms import NewUserForm
-from .models import Movie,Genre,Rating
+from .models import Movie,Genre,Rating,Comment
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.db import IntegrityError
-# Create your views here.
+from django.views import View
 
 from django.http import HttpRequest, HttpResponse
 from django.views import generic
+
+from bs4 import BeautifulSoup
+import requests
+
 # def index(request : HttpRequest):
 #     return HttpResponse("Sample response")
 
@@ -85,6 +89,19 @@ class MovieView(generic.DetailView):
         return context
     
 
+def img_gallery_parser(imdb_url):
+    
+    url = f"https://www.imdb.com/title/{imdb_url}/mediaindex"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    article_block = soup.find('div', class_='article')
+    image_links = [img['src'] for img in article_block.find_all('img') if 'src' in img.attrs]
+
+    # for link in image_links:
+    #     print(link)
+    return image_links
+    
+
 
 
 # class MovieView(LoginRequiredMixin, generic.DetailView):
@@ -97,9 +114,17 @@ class MovieView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         movie = self.get_object()
         average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
+
+        user_rating = None
+        if self.request.user.is_authenticated:
+            user_rating = movie.rating_set.filter(user=self.request.user).first()
+
         context['average_rating'] = average_rating
         context['form'] = UserRatingForm()
-        context['comment_form'] = CommentForm()  
+        context['comment_form'] = CommentForm()
+        context['gallery_images'] = img_gallery_parser(movie.imdb_url)
+        context['user_rating'] = user_rating
+
         return context
     
     def post(self, request, *args, **kwargs):
@@ -234,3 +259,17 @@ def rate_movie(request):
     else:
         form = RatingForm()
     return render(request, 'userview/rate_movie.html', {'form': form})
+
+class DeleteCommentView(View):
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+        return redirect('movie', pk=comment.movie.id)
+
+class DeleteRatingView(View):
+    def post(self, request, rating_id):
+        rating = get_object_or_404(Rating, id=rating_id)
+        if request.user == rating.user:
+            rating.delete()
+        return redirect('movie', pk=rating.movie.id)

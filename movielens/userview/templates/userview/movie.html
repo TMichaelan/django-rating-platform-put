@@ -3,42 +3,56 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-{% comment %} {% extends "base.html" %} {% endcomment %}
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
 integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
 
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
 
 
+<div class="container py-5">
 <h1>{{ movie.title }}</h1>
 
-<h4>Movie id: {{ movie.id }}</h4>
+{% comment %} <h4>Movie id: {{ movie.id }}</h4> {% endcomment %}
 
-<h4>Movie IMDB audience_rating: {{ movie.imdbrating.audience_rating }}</h4>
-<h4>Movie IMDB critic_rating: {{ movie.imdbrating.critic_rating }}</h4>
-<h4>Movie Platform user average rating: {{ average_rating }}</h4>
-<h4>Movie IMDB link: <a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></h4>
-<h4>Movie year: {{ movie.year }}</h4>
 <img src="{{ movie.img_url }}">
 
-<ul>
-    <p> Comments: {% for genre in movie.genres.all %} </p>
-    <li><a
-           class="list-group-item list-group-item-action"
-           href="/genre/{{genre.id}}"
-           >{{ genre.name }}</a></li>
-     {% endfor %}
- </ul>
-
-
-<ul>
-   <p> Genres: {% for genre in movie.genres.all %} </p>
-   <li><a
-          class="list-group-item list-group-item-action"
-          href="/genre/{{genre.id}}"
-          >{{ genre.name }}</a></li>
+{% comment %} <ul>
+    <p> Gallery: {% for image in gallery_images %} </p>
+    <li><img src="{{ image }}"></li>
     {% endfor %}
-</ul>
+</ul> {% endcomment %}
+
+<h4>Year: {{ movie.year }}</h4>
+
+<div class="slick-carousel">
+    {% for image in gallery_images %}
+    <div>
+        <img src="{{ image }}" style="width: 100px; height: 100px;">
+    </div>
+    {% endfor %}
+</div>
+
+
+<div>
+    <h5>Genres:</h5>
+    {% for genre in movie.genres.all %}
+        <a href="/genre/{{genre.id}}" class="badge bg-primary text-decoration-none text-white me-2">{{ genre.name }}</a>
+    {% endfor %}
+</div>
+
+<div class="container">
+    <div class="row row-cols-2">
+      <div class="col">IMDB audience rating</div>
+      <div class="col">{{ movie.imdbrating.audience_rating }}</div>
+      <div class="col">IMDB critic rating</div>
+      <div class="col">{{ movie.imdbrating.critic_rating }}</div>
+      <div class="col">Platform user average rating</div>
+      <div class="col">{{ average_rating }}</div>
+      <div class="col"><a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></div>
+    </div>
+  </div>
+
 
 
 {% if page_obj %}
@@ -51,6 +65,15 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 {% endif %} 
 
 {% if user.is_authenticated %}
+
+{% if user_rating %}
+<h3>Your rating</h3>
+    <p>{{ user_rating.value }}</p>
+    <form method="post" action="{% url 'delete_rating' user_rating.id %}">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Delete rating</button>
+    </form>
+{% endif %}
 
 <h3>Rate this movie</h3>
     <form method="post">
@@ -68,12 +91,43 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 {% endif %} 
 
+{% if not user.is_authenticated %}
+    <h5>Log in to rate and comment</h5>
+{% endif %} 
+
 <h3>Comments</h3>
 {% for comment in movie.comment_set.all %}
     <p>
         <strong>{{ comment.user.username }}</strong>
         {{ comment.user_review }}
+        {% if user.is_authenticated and comment.user == user %}
+            <form method="post" action="{% url 'delete_comment' comment.id %}">
+                {% csrf_token %}
+                <button class="btn btn-danger" type="submit">Delete comment</button>
+            </form>
+        {% endif %}
     </p>
 {% endfor %}
+
+</div>
+
+<!-- Add jQuery first (necessary for Slick) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Add slick JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $('.slick-carousel').slick({
+            slidesToShow: 12,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 2000,
+            prevArrow: '<button type="button" class="slick-prev" style="background-color: black; color: white; width: 22px; height: 22px; z-index: 1; border-radius: 25px;">Previous</button>',
+            nextArrow: '<button type="button" class="slick-next" style="background-color: black; color: white; width: 22px; height: 22px; z-index: 1; border-radius: 25px;">Next</button>',
+        });
+    });
+    </script>
 
 {% endblock %}
