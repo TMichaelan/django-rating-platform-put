@@ -23,7 +23,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 {% comment %} <img src="{{ movie.img_url }}"> {% endcomment %}
 
-<img src="{{ movie.img_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
+<img src="{{ movie.img_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';" style="width: 300px; height: 400px;">
 
 {% comment %} <ul>
     <p> Gallery: {% for image in gallery_images %} </p>

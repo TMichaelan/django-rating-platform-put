@@ -119,7 +119,10 @@ def img_gallery_parser(imdb_url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     article_block = soup.find('div', class_='article')
-    image_links = [img['src'] for img in article_block.find_all('img') if 'src' in img.attrs]
+    try:
+        image_links = [img['src'] for img in article_block.find_all('img') if 'src' in img.attrs]
+    except:
+        image_links = []
 
     # for link in image_links:
     #     print(link)
