@@ -13,13 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.db import IntegrityError
 from django.views import View,generic
-
-
 from bs4 import BeautifulSoup
 import requests
-
-# def index(request : HttpRequest):
-#     return HttpResponse("Sample response")
 
 def index(request : HttpRequest):
     movies = Movie.objects.order_by('-title')
@@ -37,25 +32,7 @@ def view_genre(request: HttpRequest, genre_id):
     response = 'you are looking at the genre with an id %s'
     return HttpResponse(response % genre_id)
 
-
-# class IndexView(LoginRequiredMixin, generic.ListView):
-#     login_url = '/login'
-#     paginate_by = 1
-#     template_name = 'userview/index.html'
-#     context_object_name = 'movies'
-
-#     def get_queryset(self):
-#         return Movie.objects.order_by('-title')
-    
-
-
-# class IndexView(LoginRequiredMixin, generic.ListView):
-# class IndexView(generic.ListView):
-    # login_url = '/login'
-    # paginate_by = 1
-
 class IndexView(generic.ListView):
-    # login_url = '/login'
     paginate_by = 12
 
     template_name = 'userview/index.html'
@@ -74,11 +51,7 @@ class IndexView(generic.ListView):
         context['recent_movies'] = context['recent_movies'][:8]
         return context
     
-
-    
-# class MovieView(LoginRequiredMixin, generic.DetailView):
 class MovieView(generic.DetailView):
-    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
 
@@ -113,7 +86,6 @@ class MovieView(generic.DetailView):
         context['page_obj'] = page_obj
         return context
     
-
 def img_gallery_parser(imdb_url):
     
     url = f"https://www.imdb.com/title/{imdb_url}/mediaindex"
@@ -125,14 +97,8 @@ def img_gallery_parser(imdb_url):
     except:
         image_links = []
 
-    # for link in image_links:
-    #     print(link)
     return image_links
     
-
-
-
-# class MovieView(LoginRequiredMixin, generic.DetailView):
 class MovieView(generic.DetailView):
     model = Movie
     template_name = 'userview/movie.html'
@@ -179,8 +145,6 @@ class MovieView(generic.DetailView):
 
         else:
             return self.get(request, *args, **kwargs)
-
-
 
 class GenreView(LoginRequiredMixin, generic.DetailView):
     login_url = '/login'
@@ -244,8 +208,6 @@ def rated_movies(request):
     
     return render(request, 'rated_movies.html', context)
 
-
-# TODO Validation
 def search_results(request):
     data = request.GET.get('data')
     option = request.GET.get('option')
@@ -267,7 +229,6 @@ def search_results(request):
 
     return render(request, 'search_results.html', {'movies': movies})
 
-
 class RatedMoviesView(LoginRequiredMixin, generic.ListView):
     login_url = '/login'
     model = Movie
@@ -285,20 +246,6 @@ class CommentedMoviesView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         user = self.request.user
         return Movie.objects.filter(comment__user=user).distinct()
-
-
-# @login_required
-# def rate_movie(request):
-#     if request.method == 'POST':
-#         form = RatingForm(request.POST)
-#         if form.is_valid():
-#             rating = form.save(commit=False)
-#             rating.user = request.user
-#             rating.save()
-#             return redirect('movie_detail', pk=rating.movie.id)
-#     else:
-#         form = RatingForm()
-#     return render(request, 'userview/rate_movie.html', {'form': form})
 
 class DeleteCommentView(View):
     def post(self, request, comment_id):

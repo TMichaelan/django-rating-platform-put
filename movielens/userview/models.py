@@ -10,9 +10,9 @@ class Genre(models.Model):
 class Movie(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=1000)
-    imdb_url = models.CharField(max_length=100, default='N/A')  # Use 'N/A' as a default IMDB ID
-    year = models.IntegerField(default=0)  # Assuming year is an integer
-    img_url = models.URLField(max_length=600, default='N/A')  # Assuming URL is a string of max 200 chars
+    imdb_url = models.CharField(max_length=100, default='N/A')
+    year = models.IntegerField(default=0)
+    img_url = models.URLField(max_length=600, default='N/A')
     genres = models.ManyToManyField(Genre)
 
     def __str__(self):

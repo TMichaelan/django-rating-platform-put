@@ -9,7 +9,6 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
 
-
 <div class="container py-5">
 
     {% if user.is_superuser %}
@@ -19,17 +18,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 <h1>{{ movie.title }}</h1>
 
-{% comment %} <h4>Movie id: {{ movie.id }}</h4> {% endcomment %}
-
-{% comment %} <img src="{{ movie.img_url }}"> {% endcomment %}
-
 <img src="{{ movie.img_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';" style="width: 300px; height: 400px;">
-
-{% comment %} <ul>
-    <p> Gallery: {% for image in gallery_images %} </p>
-    <li><img src="{{ image }}"></li>
-    {% endfor %}
-</ul> {% endcomment %}
 
 <h4>Year: {{ movie.year }}</h4>
 
@@ -60,8 +49,6 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
       <div class="col"><a href="https://www.imdb.com/title/{{movie.imdb_url}}">IMDB LINK</a></div>
     </div>
   </div>
-
-
 
 {% if page_obj %}
 

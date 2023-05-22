@@ -1,14 +1,10 @@
 {% extends "header.html" %}
 {% block content %}
 
-
-
-
 <div class="container py-5">
 
 <h1>About</h1>
 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel sequi necessitatibus quaerat, nesciunt fugiat assumenda perferendis architecto blanditiis nihil. Asperiores ut incidunt molestias repellendus cum mollitia, nemo architecto cupiditate dolore explicabo saepe culpa quos quaerat dicta dolores esse laudantium, iusto, quibusdam error officia? Adipisci repellat tempore nesciunt at suscipit aperiam dolorum, eum impedit mollitia aut, nobis autem aliquam ad illum unde officia molestiae odit nihil! Quos nulla reiciendis cum error maxime nam repellendus in mollitia totam voluptatem, porro illum magnam vero minus numquam. Amet incidunt voluptatem quisquam fugiat mollitia ex nihil tempore ipsum laudantium natus placeat, quas facere consequatur eos voluptatum assumenda, quaerat nulla? Fuga aspernatur facilis, quaerat laborum qui voluptatibus nam unde nobis deleniti cupiditate velit voluptates cum. Odit, dicta sit totam architecto repudiandae quae maxime dignissimos! Odio voluptate molestias expedita repellat nisi, alias, nemo odit voluptas laudantium accusantium obcaecati. Excepturi consequatur reprehenderit impedit mollitia quisquam deleniti, repellendus placeat illo eos aperiam tenetur autem, quasi dignissimos similique! Ipsa inventore magni accusamus accusantium in non illum sed impedit odio quas numquam distinctio, recusandae cum repellendus sint obcaecati vel sit exercitationem voluptates consequatur corrupti atque itaque dicta possimus! Consectetur perferendis corrupti iusto quibusdam eum. Accusamus ipsa sapiente temporibus non voluptate maxime?</p>
-
 
 <div class="container">
   <h1>Popular movies</h1>
@@ -32,7 +28,6 @@
   {% endfor %}
   </div>
 
-
 {% if user.is_authenticated %}
 <h1>Recommendations</h1>
 <ul>
@@ -40,7 +35,6 @@
 </ul>
 
 {% endif %}
-
 
   <h1>All Movies:</h1>
   {% if page_obj %} 
