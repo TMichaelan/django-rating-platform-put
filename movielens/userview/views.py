@@ -66,11 +66,12 @@ class IndexView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        recent_comments = list(Comment.objects.order_by('-timestamp').values_list('movie_id', flat=True)[:2])
-        recent_ratings = list(Rating.objects.order_by('-id').values_list('movie_id', flat=True)[:2])
+        recent_comments = list(Comment.objects.order_by('-timestamp').values_list('movie_id', flat=True)[:10])
+        recent_ratings = list(Rating.objects.order_by('-id').values_list('movie_id', flat=True)[:10])
         context['recent_movies'] = Movie.objects.filter(
             id__in=set(recent_comments + recent_ratings)
         )
+        context['recent_movies'] = context['recent_movies'][:8]
         return context
     
 
@@ -133,7 +134,6 @@ def img_gallery_parser(imdb_url):
 
 # class MovieView(LoginRequiredMixin, generic.DetailView):
 class MovieView(generic.DetailView):
-    # login_url = '/login'
     model = Movie
     template_name = 'userview/movie.html'
 
@@ -147,7 +147,7 @@ class MovieView(generic.DetailView):
             user_rating = movie.rating_set.filter(user=self.request.user).first()
 
         context['average_rating'] = average_rating
-        context['form'] = UserRatingForm()
+        context['form'] = UserRatingForm(initial={'value': user_rating.value if user_rating else None})
         context['comment_form'] = CommentForm()
         context['gallery_images'] = img_gallery_parser(movie.imdb_url)
         context['user_rating'] = user_rating
@@ -157,21 +157,22 @@ class MovieView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         form = UserRatingForm(request.POST)
         comment_form = CommentForm(request.POST)
+        movie = self.get_object()
         if form.is_valid():
-            rating = form.save(commit=False)
-            rating.user = request.user
-            rating.movie = get_object_or_404(Movie, pk=kwargs['pk'])
-            try:
-                rating.save()
+            rating, created = Rating.objects.update_or_create(
+                movie=movie, user=request.user, 
+                defaults={'value': form.cleaned_data['value']}
+            )
+            if created:
                 messages.success(request, "Your rating has been saved.")
-            except IntegrityError:
-                messages.error(request, "You've already rated this movie.")
+            else:
+                messages.success(request, "Your rating has been updated.")
             return HttpResponseRedirect(self.request.path_info)
         
         elif comment_form.is_valid(): 
             comment = comment_form.save(commit=False)
             comment.user = request.user
-            comment.movie = self.get_object()
+            comment.movie = movie
             comment.save()
             messages.success(request, "Your comment has been posted.")
             return HttpResponseRedirect(self.request.path_info)
@@ -179,7 +180,6 @@ class MovieView(generic.DetailView):
         else:
             return self.get(request, *args, **kwargs)
 
-        
 
 
 class GenreView(LoginRequiredMixin, generic.DetailView):
@@ -283,18 +283,18 @@ class CommentedMoviesView(LoginRequiredMixin, generic.ListView):
         return Movie.objects.filter(comment__user=user).distinct()
 
 
-@login_required
-def rate_movie(request):
-    if request.method == 'POST':
-        form = RatingForm(request.POST)
-        if form.is_valid():
-            rating = form.save(commit=False)
-            rating.user = request.user
-            rating.save()
-            return redirect('movie_detail', pk=rating.movie.id)
-    else:
-        form = RatingForm()
-    return render(request, 'userview/rate_movie.html', {'form': form})
+# @login_required
+# def rate_movie(request):
+#     if request.method == 'POST':
+#         form = RatingForm(request.POST)
+#         if form.is_valid():
+#             rating = form.save(commit=False)
+#             rating.user = request.user
+#             rating.save()
+#             return redirect('movie_detail', pk=rating.movie.id)
+#     else:
+#         form = RatingForm()
+#     return render(request, 'userview/rate_movie.html', {'form': form})
 
 class DeleteCommentView(View):
     def post(self, request, comment_id):
@@ -319,7 +319,9 @@ def add_movie_admin(request):
     if request.method == 'POST':
         form = AddMovieForm(request.POST)
         if form.is_valid():
-            form.save()
+            movie = form.save()
+            messages.success(request, 'Movie added successfully.')
+            return redirect('movie', pk=movie.id)
     else:
         form = AddMovieForm()
     return render(request, 'add_movie_admin.html', {'form': form})
