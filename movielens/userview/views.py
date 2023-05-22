@@ -38,6 +38,16 @@ def view_genre(request: HttpRequest, genre_id):
     return HttpResponse(response % genre_id)
 
 
+# class IndexView(LoginRequiredMixin, generic.ListView):
+#     login_url = '/login'
+#     paginate_by = 1
+#     template_name = 'userview/index.html'
+#     context_object_name = 'movies'
+
+#     def get_queryset(self):
+#         return Movie.objects.order_by('-title')
+    
+
 class IndexView(LoginRequiredMixin, generic.ListView):
     login_url = '/login'
     paginate_by = 1
@@ -46,6 +56,17 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return Movie.objects.order_by('-title')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        recent_comments = list(Comment.objects.order_by('-timestamp').values_list('movie_id', flat=True)[:2])
+        recent_ratings = list(Rating.objects.order_by('-id').values_list('movie_id', flat=True)[:2])
+        context['recent_movies'] = Movie.objects.filter(
+            id__in=set(recent_comments + recent_ratings)
+        )
+        return context
+    
+
     
 # class MovieView(LoginRequiredMixin, generic.DetailView):
 class MovieView(generic.DetailView):
