@@ -11,11 +11,19 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 
 <div class="container py-5">
+
+    {% if user.is_superuser %}
+    <a name="" id="" class="btn btn-warning" href="{% url 'edit_movie_admin' movie.id %}" role="button" style="margin-right: 5px;">Edit</a>
+    <a name="" id="" class="btn btn-danger" href="{% url 'delete_movie_admin' movie.id %}" role="button" style="margin-right: 5px;" onclick="return confirm('Are you sure want to delete {{ movie.title }} movie?')">Delete</a>
+    {% endif %}
+
 <h1>{{ movie.title }}</h1>
 
 {% comment %} <h4>Movie id: {{ movie.id }}</h4> {% endcomment %}
 
-<img src="{{ movie.img_url }}">
+{% comment %} <img src="{{ movie.img_url }}"> {% endcomment %}
+
+<img src="{{ movie.img_url }}" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
 
 {% comment %} <ul>
     <p> Gallery: {% for image in gallery_images %} </p>

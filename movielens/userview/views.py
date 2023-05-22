@@ -3,8 +3,8 @@ from django.contrib.auth import login,authenticate,logout
 from django.http import HttpRequest, HttpResponse
 from django.template import loader
 from django.contrib import messages
-from userview.forms import UserForm, RatingForm, UserRatingForm, CommentForm
-from django.contrib.auth.decorators import login_required
+from userview.forms import UserForm, RatingForm, UserRatingForm, CommentForm,AddMovieForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg
 from userview.forms import NewUserForm
 from .models import Movie,Genre,Rating,Comment
@@ -241,6 +241,15 @@ class RatedMoviesView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         user = self.request.user
         return Movie.objects.filter(rating__user=user).distinct()
+    
+class CommentedMoviesView(LoginRequiredMixin, generic.ListView):
+    login_url = '/login'
+    model = Movie
+    template_name = 'user_commented_movies.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Movie.objects.filter(comment__user=user).distinct()
 
 
 @login_required
@@ -269,3 +278,37 @@ class DeleteRatingView(View):
         if request.user == rating.user:
             rating.delete()
         return redirect('movie', pk=rating.movie.id)
+    
+def user_is_admin(user):
+    return user.is_superuser
+
+@login_required
+@user_passes_test(user_is_admin)
+def add_movie_admin(request):
+    if request.method == 'POST':
+        form = AddMovieForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = AddMovieForm()
+    return render(request, 'add_movie_admin.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_movie_admin(request, movie_id):
+    movie = get_object_or_404(Movie, id=movie_id)
+    if request.method == 'POST':
+        form = AddMovieForm(request.POST, instance=movie)
+        if form.is_valid():
+            form.save()
+            return redirect('movie', pk=movie.id)
+    else:
+        form = AddMovieForm(instance=movie)
+    return render(request, 'edit_movie_admin.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_movie_admin(request, movie_id):  
+    movie = get_object_or_404(Movie, pk=movie_id)
+    movie.delete()
+    return redirect('/')
