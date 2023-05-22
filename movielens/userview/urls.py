@@ -11,4 +11,6 @@ urlpatterns = [
     path('rated_movies/', views.rated_movies, name='rated_movies'),
     path('user_rated_movies/', views.RatedMoviesView.as_view(), name='user_rated_movies'),
     path('search/', views.search_results, name='search_results'),
+    path('delete_comment/<int:comment_id>/', views.DeleteCommentView.as_view(), name='delete_comment'),
+    path('delete_rating/<int:rating_id>/', views.DeleteRatingView.as_view(), name='delete_rating'),
 ]

@@ -28,7 +28,7 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 </ul>
 
 <ul>
-    <p> Comments: {% for genre in movie.genres.all %} </p>
+    <p> Genres: {% for genre in movie.genres.all %} </p>
     <li><a
            class="list-group-item list-group-item-action"
            href="/genre/{{genre.id}}"
@@ -58,6 +58,12 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 {% if user.is_authenticated %}
 
+{% comment %} {% if user_rating %}
+<h3>Your rating</h3>
+    <p>{{ user_rating.value }}</p>
+{% endif %}
+
+
 <h3>Rate this movie</h3>
     <form method="post">
         {% csrf_token %}
@@ -80,6 +86,49 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
         <strong>{{ comment.user.username }}</strong>
         {{ comment.user_review }}
     </p>
+{% endfor %} {% endcomment %}
+
+{% if user.is_authenticated %}
+
+{% if user_rating %}
+<h3>Your rating</h3>
+    <p>{{ user_rating.value }}</p>
+    <form method="post" action="{% url 'delete_rating' user_rating.id %}">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Delete rating</button>
+    </form>
+{% endif %}
+
+<h3>Rate this movie</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-success" type="submit">Add Rating</button>
+    </form>
+
+<h3>Add a comment</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ comment_form|crispy }}
+    <button class="btn btn-success" type="submit">Post Comment</button>
+</form>
+
+{% endif %}
+
+<h3>Comments</h3>
+{% for comment in movie.comment_set.all %}
+    <p>
+        <strong>{{ comment.user.username }}</strong>
+        {{ comment.user_review }}
+        {% if user.is_authenticated and comment.user == user %}
+            <form method="post" action="{% url 'delete_comment' comment.id %}">
+                {% csrf_token %}
+                <button class="btn btn-danger" type="submit">Delete comment</button>
+            </form>
+        {% endif %}
+    </p>
 {% endfor %}
+
+{% endif %} 
 
 {% endblock %}

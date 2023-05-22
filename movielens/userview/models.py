@@ -20,10 +20,11 @@ class Movie(models.Model):
 
 class Rating(models.Model):
     value = models.IntegerField(default=0)
-    audience_rating = models.IntegerField(default=0)
-    critic_rating = models.IntegerField(default=0)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [['user', 'movie']]
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
