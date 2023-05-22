@@ -234,9 +234,24 @@ class RatedMoviesView(LoginRequiredMixin, generic.ListView):
     model = Movie
     template_name = 'user_rated_movies.html'
 
+    paginate_by = 12
+    context_object_name = 'movies'
+
     def get_queryset(self):
         user = self.request.user
         return Movie.objects.filter(rating__user=user).distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        recent_comments = list(Comment.objects.order_by('-timestamp').values_list('movie_id', flat=True)[:10])
+        recent_ratings = list(Rating.objects.order_by('-id').values_list('movie_id', flat=True)[:10])
+        context['recent_movies'] = Movie.objects.filter(
+            id__in=set(recent_comments + recent_ratings)
+        )
+        context['recent_movies'] = context['recent_movies'][:8]
+        return context
+
+
     
 class CommentedMoviesView(LoginRequiredMixin, generic.ListView):
     login_url = '/login'
