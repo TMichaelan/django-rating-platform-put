@@ -22,6 +22,12 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 <img src="{{ movie.img_url }}">
 
 <ul>
+    <p> Gallery: {% for image in gallery_images %} </p>
+    <li><img src="{{ image }}"></li>
+    {% endfor %}
+</ul>
+
+<ul>
     <p> Comments: {% for genre in movie.genres.all %} </p>
     <li><a
            class="list-group-item list-group-item-action"

@@ -18,6 +18,10 @@ from django.db import IntegrityError
 
 from django.http import HttpRequest, HttpResponse
 from django.views import generic
+
+from bs4 import BeautifulSoup
+import requests
+
 # def index(request : HttpRequest):
 #     return HttpResponse("Sample response")
 
@@ -85,6 +89,19 @@ class MovieView(generic.DetailView):
         return context
     
 
+def img_gallery_parser(imdb_url):
+    
+    url = f"https://www.imdb.com/title/{imdb_url}/mediaindex"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    article_block = soup.find('div', class_='article')
+    image_links = [img['src'] for img in article_block.find_all('img') if 'src' in img.attrs]
+
+    # for link in image_links:
+    #     print(link)
+    return image_links
+    
+
 
 
 # class MovieView(LoginRequiredMixin, generic.DetailView):
@@ -99,7 +116,9 @@ class MovieView(generic.DetailView):
         average_rating = movie.rating_set.aggregate(Avg('value'))['value__avg']
         context['average_rating'] = average_rating
         context['form'] = UserRatingForm()
-        context['comment_form'] = CommentForm()  
+        context['comment_form'] = CommentForm()
+        context['gallery_images'] = img_gallery_parser(movie.imdb_url)
+
         return context
     
     def post(self, request, *args, **kwargs):
