@@ -1,6 +1,7 @@
 {% extends "header.html" %}
 {% block content %}
 
+<div class="container py-5">
 {% if user.is_authenticated %}
 
 <div class="p-4">
@@ -26,9 +27,20 @@
 <a name="" id="" class="btn btn-warning" href="/logout" role="button">Log out</a>
 <a name="" id="" class="btn btn-primary" href="/rated_movies" role="button">Ratings</a>
 {% endif %}
+
+<p>{% lorem 5 %}</p>
+
+<h1>Popular movies</h1>
+
+{% if user.is_authenticated %}
+<h1>Recommendations</h1>
+
+{% endif %}
+
 {% if not user.is_authenticated %}
 <h1>Error : Login Required</h1>
 {% endif %}
+</div>
 {% endblock %}
 
 
