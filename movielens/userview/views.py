@@ -48,8 +48,9 @@ def view_genre(request: HttpRequest, genre_id):
 #         return Movie.objects.order_by('-title')
     
 
-class IndexView(LoginRequiredMixin, generic.ListView):
-    login_url = '/login'
+# class IndexView(LoginRequiredMixin, generic.ListView):
+class IndexView(generic.ListView):
+    # login_url = '/login'
     paginate_by = 1
     template_name = 'userview/index.html'
     context_object_name = 'movies'
