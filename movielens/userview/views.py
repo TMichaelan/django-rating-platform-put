@@ -1,3 +1,5 @@
+from typing import Any
+from django.db.models.query import QuerySet
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login,authenticate,logout
 from django.http import HttpRequest, HttpResponse
@@ -51,40 +53,42 @@ class IndexView(generic.ListView):
         context['recent_movies'] = context['recent_movies'][:8]
         return context
     
-class MovieView(generic.DetailView):
-    model = Movie
-    template_name = 'userview/movie.html'
+# 2 times the same class
 
-    context_object_name = 'movies_list'
-    paginate_by = 1
+# class MovieView(generic.DetailView):
+#     model = Movie
+#     template_name = 'userview/movie.html'
+
+#     context_object_name = 'movies_list'
+#     paginate_by = 1
     
-    def get_queryset(self):
-        object_list = Movie.objects.all()
-        paginator = Paginator(object_list, self.paginate_by)
+#     def get_queryset(self):
+#         object_list = Movie.objects.all()
+#         paginator = Paginator(object_list, self.paginate_by)
 
-        page_num = self.request.GET.get('page')
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
+#         page_num = self.request.GET.get('page')
+#         try:
+#             page_obj = paginator.page(page_num)
+#         except PageNotAnInteger:
+#             page_obj = paginator.page(1)
 
-        print(page_obj)
+#         print(page_obj)
 
-        return page_obj.object_list
+#         return page_obj.object_list
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        object_list = Movie.objects.all()
-        paginator = Paginator(object_list, self.paginate_by)
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         object_list = Movie.objects.all()
+#         paginator = Paginator(object_list, self.paginate_by)
 
-        page_num = self.request.GET.get('page')
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
+#         page_num = self.request.GET.get('page')
+#         try:
+#             page_obj = paginator.page(page_num)
+#         except PageNotAnInteger:
+#             page_obj = paginator.page(1)
 
-        context['page_obj'] = page_obj
-        return context
+#         context['page_obj'] = page_obj
+#         return context
     
 def img_gallery_parser(imdb_url):
     
@@ -208,26 +212,42 @@ def rated_movies(request):
     
     return render(request, 'rated_movies.html', context)
 
-def search_results(request):
-    data = request.GET.get('data')
-    option = request.GET.get('option')
-    movies = Movie.objects.all()
+class SearchResultsView(generic.ListView):
+    
+    template_name = 'search_results.html'
 
-    if option == "title":
-        movies = movies.filter(title__icontains=data)
+    paginate_by = 12
+    context_object_name = 'movies'
 
-    elif option == "genre":
-        movies = movies.filter(genres__name__icontains=data)
-        print(movies)
-       
-    elif option == "rating":
-        data = float(data)
-        movies = movies.annotate(avg_rating=Avg('rating__value'))
-        movies = movies.filter(avg_rating__gte=data)
+    def get_queryset(self):
+        data = self.request.GET.get('data')
+        option = self.request.GET.get('option')
+        movies = Movie.objects.all()
 
-    print(movies)
+        if option == "title":
+            movies = movies.filter(title__icontains=data)
 
-    return render(request, 'search_results.html', {'movies': movies})
+        elif option == "genre":
+            movies = movies.filter(genres__name__icontains=data)
+        
+        elif option == "rating":
+            data = float(data)
+            movies = movies.annotate(avg_rating=Avg('rating__value'))
+            movies = movies.filter(avg_rating__gte=data)
+
+        return movies
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        recent_comments = list(Comment.objects.order_by('-timestamp').values_list('movie_id', flat=True)[:10])
+        recent_ratings = list(Rating.objects.order_by('-id').values_list('movie_id', flat=True)[:10])
+        context['recent_movies'] = Movie.objects.filter(
+            id__in=set(recent_comments + recent_ratings)
+        )
+        context['recent_movies'] = context['recent_movies'][:8]
+        return context
+    
+    # return render(request, 'search_results.html', {'movies': movies})
 
 class RatedMoviesView(LoginRequiredMixin, generic.ListView):
     login_url = '/login'

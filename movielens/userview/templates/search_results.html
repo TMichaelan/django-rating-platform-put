@@ -4,6 +4,7 @@
 {% block content %}
 
 <div class="container">
+{% if page_obj %} 
 <div class="row row-cols-1 row-cols-md-2 g-4" style="margin-top:20px">
 {% for movie in movies %}
 <div class="card" style="width: 18rem; margin-right:10px">
@@ -19,9 +20,24 @@
       <a href="/movie/{{movie.id}}" class="btn btn-primary mt-auto">Follow</a>
     </div>
   </div>
-{% empty %}
-  <h1>There are no movies that meet your request.</h1>
+
 {% endfor %}
 </div>
+<div>
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
 </div>
+{% else %}
+<h1>There are no movies that meet your request.</h1>
+
+{% endif %} 
+</div>
+
 {% endblock %}
