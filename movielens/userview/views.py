@@ -40,7 +40,7 @@ def view_genre(request: HttpRequest, genre_id):
 
 class IndexView(LoginRequiredMixin, generic.ListView):
     login_url = '/login'
-    paginate_by = 1
+    paginate_by = 10
     template_name = 'userview/index.html'
     context_object_name = 'movies'
 
