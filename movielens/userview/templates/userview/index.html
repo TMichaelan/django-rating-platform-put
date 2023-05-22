@@ -1,6 +1,9 @@
 {% extends "header.html" %}
 {% block content %}
 
+
+
+
 <div class="container py-5">
 
 <h1>About</h1>
@@ -44,33 +47,36 @@
 
 
 
-{% if user.is_authenticated %}
-
 <div class="p-4">
   <h1>Movies List:</h1>
-    {% if page_obj %} 
+  {% if page_obj %} 
+  <div class="row justify-content-center align-items-center">
     {% for movie in page_obj %}
-      <h4>
-        <a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a>
-      </h4>
+    <div class="col-4">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title"><a class="list-group-item list-group-item-action" href="/movie/{{movie.id}}">{{ movie.title }}</a></h3>
+          <img src="{{ movie.img_url }}" class="card-img-top" alt="{{ movie.title }}" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Noimage.svg/555px-Noimage.svg.png';">
+        </div>
+      </div>
+    </div>
     {% endfor %} 
-    {% endif %} 
+  </div>
+  {% endif %} 
   <div>
-      {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      {% endif %}
-      
-      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Next</a>
-      {% endif %}
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
   </div>
 </div>
 <a name="" id="" class="btn btn-warning" href="/logout" role="button">Log out</a>
 <a name="" id="" class="btn btn-primary" href="/rated_movies" role="button">Ratings</a>
-{% endif %}
-
-</div>
 
 
 {% endblock %}
