@@ -38,6 +38,9 @@
           <div class="container" style="display:flex; justify-content: flex-end;">
           {% if user.is_authenticated %}
             
+            {% if user.is_superuser %}
+            <a name="" id="" class="btn btn-warning" href="/add_movie_admin" role="button" style="margin-right: 5px;">Add movie</a>
+            {% endif %}
             <a name="" id="" class="btn btn-primary" href="/user_commented_movies" role="button" style="margin-right: 5px;">My comments</a>
             <a name="" id="" class="btn btn-primary" href="/user_rated_movies" role="button" style="margin-right: 5px;">My ratings</a>
             <div class="navbar-text" style="margin-right: 10px;">Logged in as: <strong>{{ user.username }}</strong></div>

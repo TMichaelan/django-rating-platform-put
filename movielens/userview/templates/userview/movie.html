@@ -11,6 +11,11 @@ integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+f
 
 
 <div class="container py-5">
+
+    {% if user.is_superuser %}
+    <a name="" id="" class="btn btn-warning" href="{% url 'edit_movie_admin' movie.id %}" role="button" style="margin-right: 5px;">Edit</a>
+    {% endif %}
+
 <h1>{{ movie.title }}</h1>
 
 {% comment %} <h4>Movie id: {{ movie.id }}</h4> {% endcomment %}

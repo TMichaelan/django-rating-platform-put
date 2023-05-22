@@ -1,0 +1,14 @@
+{% extends "header.html" %}
+{% load userview_extras %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container py-5">
+<h2>Add a new movie</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-primary">Add movie</button>
+</form>
+</div>
+{% endblock %}

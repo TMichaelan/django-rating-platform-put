@@ -14,4 +14,6 @@ urlpatterns = [
     path('search/', views.search_results, name='search_results'),
     path('delete_comment/<int:comment_id>/', views.DeleteCommentView.as_view(), name='delete_comment'),
     path('delete_rating/<int:rating_id>/', views.DeleteRatingView.as_view(), name='delete_rating'),
+    path('add_movie_admin/', views.add_movie_admin, name='add_movie_admin'),
+    path('edit_movie_admin/<int:movie_id>/', views.edit_movie_admin, name='edit_movie_admin'),
 ]
