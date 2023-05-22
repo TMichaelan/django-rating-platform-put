@@ -227,10 +227,14 @@ def rated_movies(request):
     if request.method == 'POST':
         form = RatingForm(request.POST)
         if form.is_valid():
-            rating = form.save(commit=False)
-            rating.user = request.user
-            rating.save()
-            messages.success(request, 'Rating added successfully.')
+            rating, created = Rating.objects.update_or_create(
+                movie=form.cleaned_data['movie'], user=request.user, 
+                defaults={'value': form.cleaned_data['value']}
+            )
+            if created:
+                messages.success(request, 'Rating added successfully.')
+            else:
+                messages.success(request, 'Rating updated successfully.')
     else:
         form = RatingForm()
 
