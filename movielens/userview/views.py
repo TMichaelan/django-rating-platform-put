@@ -264,30 +264,69 @@ class DeleteRatingView(View):
 def user_is_admin(user):
     return user.is_superuser
 
+# @login_required
+# @user_passes_test(user_is_admin)
+# def add_movie_admin(request):
+#     if request.method == 'POST':
+#         form = AddMovieForm(request.POST)
+#         if form.is_valid():
+#             movie = form.save()
+#             messages.success(request, 'Movie added successfully.')
+#             return redirect('movie', pk=movie.id)
+#     else:
+#         form = AddMovieForm()
+#     return render(request, 'add_movie_admin.html', {'form': form})
+
 @login_required
 @user_passes_test(user_is_admin)
 def add_movie_admin(request):
     if request.method == 'POST':
         form = AddMovieForm(request.POST)
         if form.is_valid():
-            movie = form.save()
+            form.save()
             messages.success(request, 'Movie added successfully.')
-            return redirect('movie', pk=movie.id)
+            return redirect('/')
     else:
         form = AddMovieForm()
     return render(request, 'add_movie_admin.html', {'form': form})
 
+# @login_required
+# @user_passes_test(lambda u: u.is_superuser)
+# def edit_movie_admin(request, movie_id):
+#     movie = get_object_or_404(Movie, id=movie_id)
+#     if request.method == 'POST':
+#         form = AddMovieForm(request.POST, instance=movie)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('movie', pk=movie.id)
+#     else:
+#         form = AddMovieForm(instance=movie)
+#     return render(request, 'edit_movie_admin.html', {'form': form})
+
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(user_is_admin)
 def edit_movie_admin(request, movie_id):
-    movie = get_object_or_404(Movie, id=movie_id)
+    movie = get_object_or_404(Movie, pk=movie_id)
     if request.method == 'POST':
         form = AddMovieForm(request.POST, instance=movie)
         if form.is_valid():
             form.save()
-            return redirect('movie', pk=movie.id)
+            messages.success(request, 'Movie updated successfully.')
+            return redirect(f'/movie/{movie_id}')
     else:
-        form = AddMovieForm(instance=movie)
+        initial = {
+            'title': movie.title,
+            'imdb_url': movie.imdb_url,
+            'year': movie.year,
+            'img_url': movie.img_url,
+            'genres': movie.genres.all()
+        }
+        if hasattr(movie, 'imdbrating'):
+            initial.update({
+                'audience_rating': movie.imdbrating.audience_rating,
+                'critic_rating': movie.imdbrating.critic_rating,
+            })
+        form = AddMovieForm(initial=initial)
     return render(request, 'edit_movie_admin.html', {'form': form})
 
 @login_required
